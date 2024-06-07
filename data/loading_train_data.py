@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 import SimpleITK as sitk
+from PIL import Image
 
 class MyDataset(Dataset):
     def __init__(self, norm_type, X,y,meta=None,augment=None):
