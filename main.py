@@ -13,28 +13,25 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 
-
-
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description='Transfer Learning implementation in sMRI using PyTorch.')
-    parser.add_argument('--path', type=str, default='/content/drive/MyDrive/MRI/', help='Path of data files')
-    parser.add_argument('--img_file', type=str, default='co_CI_brain_jacobian_withoutcbl_lure_eng', help='Path of data files')
-    parser.add_argument('--label_file', type=str, default="CI_Meta_lure_eng", help='Path of label files')
-    parser.add_argument('--test_img_file', type=str, default='co_CI_brain_jacobian_withoutcbl_hk', help='Path of data files')
-    parser.add_argument('--test_label_file', type=str, default="CI_Meta_hk", help='Path of label files')
+        description='Transfer Learning implementation in MRI using PyTorch.')
+    parser.add_argument('--path', type=str, default='/direct to your MRI doctory/', help='Path of data files')
+    parser.add_argument('--img_file', type=str, default='XXX', help='Path of data files')
+    parser.add_argument('--label_file', type=str, default="XXX", help='Path of label files')
+    parser.add_argument('--test_img_file', type=str, default='XXX', help='Path of data files')
+    parser.add_argument('--test_label_file', type=str, default="XXX", help='Path of label files')
     parser.add_argument('--desired_shape', type=list, default=[128,128], help='target shape of input image')
-    #parser.add_argument('--crop_shape', type=list, default=[128,128], help='target shape of input image')
     parser.add_argument('--num_epochs', type=int, default=100,
                         help='Number of epochs for training')
-    parser.add_argument('--num_epochs_pre', type=int, default=100,
+    parser.add_argument('--num_epochs_pre', type=int, default=200,
                         help='Number of epochs for training')
     parser.add_argument('--batch_size', type=int, default=64,
                         help='Batch size for training')
     parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
-                        help='What would you like to classify?')
+                        help='The dimension of hidden_size in adapter_layer')
     parser.add_argument('--clinical_features', type=int, default=19, metavar='N',
-                        help='What would you like to classify?')
+                        help='The number of the clincial features for classify?')
     parser.add_argument('--num_classes', type=int, default=1, metavar='N',
                         help='What would you like to classify?')
     parser.add_argument('--embedding_dim', type=int, default=768,
@@ -49,8 +46,8 @@ def parse_arguments():
                         help='Optimizer parameters')
     parser.add_argument('--norm_type', type=str, default='demean_std', choices=["demean_std", "minmax","None"],
                         help='help=How to preprocess data: demean_std, minmax or None')
-    parser.add_argument('--rg_type', type=str, default='KM', choices=['L1', 'L2', 'L1L2','HybridReg'],
-                        help='Regularization type to use: L1 (LASSO), L2 (Ridge), Elastic net (beta*L2 + L1) or HybridReg')
+    # parser.add_argument('--rg_type', type=str, default='KM', choices=['L1', 'L2', 'L1L2','HybridReg'],
+    #                     help='Regularization type to use: L1 (LASSO), L2 (Ridge), Elastic net (beta*L2 + L1) or HybridReg')
     parser.add_argument('--kernel', type=int, default=16, metavar='N',
                         help='the kernel size (default: 16')
     parser.add_argument('--network', type=str, default='Mobilenet', metavar='str',
@@ -66,18 +63,16 @@ def parse_arguments():
     parser.add_argument('--lr', type=float, default=1e-4,
                         help='Initial learning rate for training')
     # parser.add_argument('--lr_clinical', type=float, default=1e-4,
-    #                     help='Initial learning rate for training')
+    #                     help='Initial learning rate for clincial training')
     parser.add_argument('--patience', type=int, default=10,
                         help='Early stopping')
     parser.add_argument('--lr_scheduler_warmup_ratio', type=int, default=0.1,
                         help='Number of workers to use in data loading')
     parser.add_argument('--lr_scheduler_type', type=str, default='linear',
                         help='help=Type of learning rate')
-    parser.add_argument('--save_dir', type=str, default='/content/drive/MyDrive/MRI/save_path/', help='Location of model temporarily')
+    parser.add_argument('--save_dir', type=str, default='XXX', help='Location of model temporarily')
     parser.add_argument('--device', default='cuda', choices=['cpu', 'cuda'])
-
-
-    return parser.parse_args([])  # Running from command line
+    return parser.parse_args()  # Running from command line
 
 def main(args,X,y):
     set_seed(123)
