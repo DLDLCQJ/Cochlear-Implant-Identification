@@ -3,6 +3,8 @@ import pandas as pd
 from torchvision import transforms
 from sklearn.preprocessing import OneHotEncoder
 
+
+
 def pad_todesire_2D(img, desired_shape):
     X_before = int((desired_shape[0]-img.shape[0])/2)
     Y_before = int((desired_shape[1]-img.shape[1])/2)
@@ -21,6 +23,31 @@ def crop_center_2D(img,crop_shape):
     starty = y//2-(cropy//2)
     return img[startx:startx+cropx,starty:starty+cropy]
 
+def pad_todesire_3D(img, desired_shape):
+    X_before = int((desired_shape[0]-img.shape[0])/2)
+    Y_before = int((desired_shape[1]-img.shape[1])/2)
+    Z_before = int((desired_shape[2]-img.shape[2])/2)
+    X_after = desired_shape[0]-img.shape[0]-X_before
+    Y_after = desired_shape[1]-img.shape[1]-Y_before
+    Z_after = desired_shape[2]-img.shape[2]-Z_before
+
+    npad = ((X_before, X_after),
+            (Y_before, Y_after),
+            (Z_before, Z_after))
+    padded = np.pad(img, pad_width=npad, mode='constant', constant_values=0)
+
+    return padded
+
+def crop_center_3D(img,crop_shape):
+    x,y,z = img.shape
+    cropx = crop_shape[0]
+    cropy = crop_shape[1]
+    cropz = crop_shape[2]
+    startx = x//2-(cropx//2)
+    starty = y//2-(cropy//2)
+    startz = z//2-(cropz//2)
+    return img[startx:startx+cropx,starty:starty+cropy, startz:startz+cropz]
+    
 def augment():
     return transforms.Compose([
     transforms.ToPILImage(),
