@@ -30,164 +30,9 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import roc_curve, auc
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from Transfer-Learning.utils import set_seed
-from Transfer-Learning.
+from Transfer-Learning.utils.evaluating_scores import compute_scores
+from loading_data import load_data, Flatten_MRI
 
-
-
-class ScalerPCA(BaseEstimator, TransformerMixin):
-    def __init__(self, variance_threshold=0.95):
-        self.variance_threshold = variance_threshold
-        self.scaler = StandardScaler(with_std=False)
-        self.pca = PCA()
-
-    def fit(self, X, y=None):
-        # Fit the scaler
-        X_scaled = self.scaler.fit_transform(X)
-        # Fit PCA to determine the number of components to retain the desired variance
-        self.pca.fit(X_scaled)
-        cumulative_variance = np.cumsum(self.pca.explained_variance_ratio_)
-        self.n_components_ = np.argmax(cumulative_variance >= self.variance_threshold) + 1
-        # Fit PCA again with the selected number of components
-        self.pca = PCA(n_components=self.n_components_)
-        self.pca.fit(X_scaled)
-        return self
-
-    def transform(self, X, y=None):
-        X_scaled = self.scaler.transform(X)
-        X_pca = self.pca.transform(X_scaled)
-        return X_pca
-    
-class Preprocessor:
-    def __init__(self, preprocess: typing.Union[str, bool, None] = None,
-                    **kwargs) -> None:
-        from sklearn.pipeline import Pipeline
-
-        preprocessor_classes = {
-            'demean': StandardScaler(with_std=False),
-            'demean_std': StandardScaler(with_std=True),
-            'minmax': MinMaxScaler,
-            # Create pipeline for pca
-            'pca_auto': ScalerPCA(variance_threshold=0.95),
-            'pca10': Pipeline([('scaler', StandardScaler(with_std=False)), ('pca', PCA(n_components=10))]),
-            'pca100': Pipeline([('scaler', StandardScaler(with_std=False)), ('pca', PCA(n_components=100))]),
-            
-            None: None
-        }
-
-        if preprocess not in preprocessor_classes:
-            raise ValueError(f'Preprocess setting {preprocess} does not exist in preprocessor_classes')
-
-        self.unfitted_scaler = preprocessor_classes[preprocess]
-        self.preprocess_name = preprocess
-
-    def fit(self, A_raw: typing.Union[pd.DataFrame, np.ndarray] = None):
-        """Fit based on the input data (A_raw), return scaler. Do not transform.
-        
-        If the scaler does not exist, return None
-        """
-        if self.unfitted_scaler is not None:
-            print(f'\nFitting scaler {self.unfitted_scaler}')
-            fitted_scaler = self.unfitted_scaler.fit(A_raw)  # demeans column-wise (i.e. per neuroid)
-        else:
-            fitted_scaler = None
-
-        return fitted_scaler
-
-    def transform(self, scaler: typing.Union[StandardScaler, MinMaxScaler] = None,
-                    A_raw: typing.Union[pd.DataFrame, np.ndarray] = None):
-        """Input an array/dataframe (A_raw) and scale based on the transform fitted supplied in scaler.
-        If a dateframe is input, then add indexing back after scaling
-        
-        If scaler is None, then return A_raw.
-        
-        """
-
-        if scaler is not None:
-            print(f'\nTransforming on new data using scaler {scaler}')
-            A_scaled = scaler.transform(A_raw)
-
-            if type(A_raw) == pd.DataFrame:
-                if self.preprocess_name.startswith(
-                        'pca'):  # If PCA, we can't add back the column names because there are now fewer columns
-                    A_scaled = pd.DataFrame(data=A_scaled, index=A_raw.index)
-                else:
-                    A_scaled = pd.DataFrame(A_scaled, index=A_raw.index, columns=A_raw.columns)
-
-        else:
-            print(f'Scaler is None, return A_raw')
-            A_scaled = A_raw
-
-        return A_scaled
-    
-
-def statis_metrics(ground_truth, prediction):
-    """Computes the accuracy, sensitivity, specificity and roc"""
-    tp = np.sum((prediction == 1) & (ground_truth == 1))
-    tn = np.sum((prediction == 0) & (ground_truth == 0))
-    fp = np.sum((prediction == 1) & (ground_truth == 0))
-    fn = np.sum((prediction == 0) & (ground_truth == 1))
-    # cm = confusion_matrix(labels, predictions_,labels=[0, 1])
-    # tn, fp, fn, tp = cm.ravel()
-    scores_dict = dict()
-    scores_dict['sensitivity'] = tp / (tp + fn)
-    scores_dict['specificity'] = tn / (fp + tn)
-    scores_dict['precision'] = tp / (tp + fp)
-    scores_dict['recall'] = tp / (tp + fn)
-    #scores_dict['F1score'] = 2 * (precision * sen) / (precision + sen)
-    fpr, tpr, thresholds = roc_curve(ground_truth, prediction)
-    scores_dict['roc_auc'] = auc(fpr, tpr)
-    scores_dict['accuracy'] = (tp+tn) / (tp + tn + fp + fn)
-    return scores_dict['accuracy'],scores_dict['roc_auc'],scores_dict['sensitivity'],scores_dict['specificity']
-
-
-def load_data(path):
-    import nilearn
-    from nilearn import plotting
-    nifti_list = pd.read_csv(opj(path,'CI_brain_jacobian_withoutcbl_lure_eng.csv'))
-    imgs = []
-    for f, file in enumerate(nifti_list.to_numpy()):
-        img = nilearn.image.load_img(file)
-        org_img = np.squeeze(nilearn.image.get_data(img))
-        org_shape = list(org_img.shape)
-        desired_shape = org_shape
-        crop_shape = org_shape
-        for i in range (3):
-            if desired_shape[i] < org_shape[i]:
-                crop_shape[i] = desired_shape[i]  
-        cropped_img = crop_center(org_img, crop_shape)
-        final_img = pad_todesire(cropped_img, desired_shape)
-        processed_img = np.array(final_img).astype(float)
-        print(processed_img.shape)
-        if f % 10 == 0:
-            mid_slice_x_after = processed_img
-            plt.imshow(mid_slice_x_after[:,60,:], cmap='gray', origin='lower')
-            plt.xlabel('First axis')
-            plt.ylabel('Second axis')
-            plt.colorbar(label='Signal intensity')
-            plt.show()
-        imgs.append(processed_img)
-    ##
-    processed_img = np.squeeze(np.array(imgs))
-    processed_img = processed_img[:, np.newaxis, :, :, :]
-    y = pd.read_csv(opj(path, "CI_Meta_lure_eng.csv")).iloc[:,1].values
-    return processed_img,y
-
-def Float_MRI(ims):
-    flatmap = np.array([im.flatten() for im in ims]) 
-    evox = ((flatmap**2).sum(axis=0)!=0)
-    flatmap = flatmap[:,evox] # only analyze voxels with values > 0
-    X = flatmap-flatmap.mean(axis=0) # center each voxel at zero
-    return X
-
-
-# Loading data
-data_folder = '/Users/simon/Desktop/Melb/Final-match-Melb/MRI-results/'
-ims, y = load_data(data_folder)
-X = Float_MRI(ims)
-X = pd.DataFrame(X)
-y = pd.DataFrame(y).squeeze()
-print(X.shape, y.shape,y.head())
 
 class Mapping:
     def __init__(self,
@@ -386,24 +231,37 @@ class Mapping:
         return df_tr_scores, df_tr_scores_across_folds, df_te_scores, df_te_scores_across_folds
 
 
-
+def set_seed(seed=123):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        
 set_seed(123)
-preprocessor = Preprocessor(preprocess='pca_auto') 
-mapping = Mapping(X=X,
-                y=y,
-                mapping_class='SVM', #[Linear, SVM, RF, DT, KNN, Xgboost]
-                metric=statis_metrics,
-                Preprocessor=preprocessor,
-                preprocess_X=True,
-                preprocess_y=False,)
+if __name__ == "__main__":
+    # Loading data
+    data_folder = '/Users/simon/Desktop/Melb/Final-match-Melb/MRI-results/'
+    ims, y = load_data(data_folder)
+    X = Float_MRI(ims)
+    X = pd.DataFrame(X)
+    y = pd.DataFrame(y).squeeze()
+    print(X.shape, y.shape,y.head())
+    
+    preprocessor = Preprocessor(preprocess='pca_auto') 
+    # Training
+    mapping = Mapping(X=X,
+                    y=y,
+                    mapping_class='SVM', #[Linear, SVM, RF, DT, KNN, Xgboost]
+                    metric=statis_metrics,
+                    Preprocessor=preprocessor,
+                    preprocess_X=True,
+                    preprocess_y=False,)
+    
+    df_tr_scores, df_tr_scores_across_folds,df_te_scores, df_te_scores_across_folds = mapping.CV_score(k = 5,
+                                                        random_state=1234,
+                                                        permute_X=None, # 'shuffle_X_rows',
+                                                        )
+    
 
-df_tr_scores, df_tr_scores_across_folds,df_te_scores, df_te_scores_across_folds = mapping.CV_score(k = 5,
-                                                    random_state=1234,
-                                                    permute_X=None, # 'shuffle_X_rows',
-                                                    )
-
-df_tr_scores, df_te_scores
-df_tr_scores_across_folds, df_te_scores_across_folds
-
-np.mean(df_tr_scores_across_folds, axis=0), np.mean(df_te_scores_across_folds, axis=0)
+    print(np.mean(df_tr_scores_across_folds, axis=0), np.mean(df_te_scores_across_folds, axis=0))
 
