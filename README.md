@@ -46,16 +46,12 @@ You can install the required dependencies using pip:
 ```sh
 pip install -r requirements.txt
 
-</details>
-<details>
 
 ## Models Comparisons
 ![Figure2](https://github.com/DLDLCQJ/Cochlear-Implant-Identification/assets/145650040/1405a323-0ba7-4155-9e1a-635adff244ec)
 Figure: Classification performance for machine learning models and transfer learning models (A) and the generalization of the model within datasets and across datasets (B).
 
-<summary>▼ The raw numbers from the experiment</summary>
-
-## Table 2. The classification performance of the Transfer Learning models and Machine Learning models in the Chicago English group.
+<summary>▼ Table 2. The classification performance of the Transfer Learning models and Machine Learning models in the Chicago English group.</summary>
 
 | Types       | Models          | Accuracy (95% CI)         | Sensitivity (95% CI)      | Specificity (95% CI)      | AUC (95% CI)            |
 |-------------|------------------|---------------------------|---------------------------|---------------------------|-------------------------|
@@ -73,9 +69,9 @@ Figure: Classification performance for machine learning models and transfer lear
 | Voxel-based | RF               | 48.45 (31.79-65.11)       | 36.38 (15.65-57.12)       | 66.13 (35.02-97.25)       | 0.512 (0.364-0.661)     |
 | Voxel-based | XGBoost          | 53.25 (42.39-64.12)       | 53.86 (42.30-65.43)       | 53.07 (34.47-71.66)       | 0.5347 (41.35-65.58)    |
 
-Abbreviations: LR, Logistic Regression; KNN, K-Nearest Neighbor; SVM, Support Vector Machine; DT, Decision Tree; RF, Random Forest; XGBoost, eXtreme Gradient Boosting.
-
-## Table 3. The performance of the Transfer Learning method within and across datasets using the MobileNet model.
+</details>
+<details>
+<summary>▼ Table 3. The performance of the Transfer Learning method within and across datasets using the MobileNet model.</summary>
 
 | Datasets                           | Accuracy (95% CI)       | Sensitivity (95% CI)     | Specificity (95% CI)     | AUC (95% CI)            |
 |------------------------------------|-------------------------|--------------------------|--------------------------|-------------------------|
