@@ -46,11 +46,13 @@ You can install the required dependencies using pip:
 ```sh
 pip install -r requirements.txt
 
+
 ## Models Comparisons
 ![Figure2](https://github.com/DLDLCQJ/Cochlear-Implant-Identification/assets/145650040/1405a323-0ba7-4155-9e1a-635adff244ec)
 Figure: Classification performance for machine learning models and transfer learning models (A) and the generalization of the model within datasets and across datasets (B).
 
 <summary>▼ The raw numbers from the experiment</summary>
+
 ## Table 2. The classification performance of the Transfer Learning models and Machine Learning models in the Chicago English group.
 
 | Types       | Models          | Accuracy (95% CI)         | Sensitivity (95% CI)      | Specificity (95% CI)      | AUC (95% CI)            |
