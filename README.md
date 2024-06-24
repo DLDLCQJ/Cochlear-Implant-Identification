@@ -73,8 +73,8 @@ Figure: Classification performance for machine learning models and transfer lear
 
 </details>
 <details>
-<summary> Table 3. The performance of the Transfer Learning method within and across datasets using the MobileNet model.</summary>
-
+<summary> </summary>
+Table 3. The performance of the Transfer Learning method within and across datasets using the MobileNet model.
 | Datasets                           | Accuracy (95% CI)       | Sensitivity (95% CI)     | Specificity (95% CI)     | AUC (95% CI)            |
 |------------------------------------|-------------------------|--------------------------|--------------------------|-------------------------|
 | Single Dataset                     |                         |                          |                          |                         |
