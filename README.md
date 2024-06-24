@@ -19,8 +19,8 @@ Platform: MAC Mini 2023
 GPU: A100 GPU RAM 40.0 GB
 
 # Requirements
-PyTorch (1.9 or greater).
-NumPy (1.19 or greater).
+PyTorch (1.9 or greater). /n
+NumPy (1.19 or greater). /n
 tqdm (4.31 or greater).
 nibabel (3.2 or greater).
 matplotlib (3.3 or greater).
