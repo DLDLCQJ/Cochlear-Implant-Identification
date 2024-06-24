@@ -83,41 +83,10 @@ class Mapping:
         self.mapping_class = mapping_classes[mapping_class]
         if not self.mapping_class:
             raise ValueError(f'Mapping class not specified')
-
-    def permute_X(self,
-                    X: pd.DataFrame = None,
-                    method: str = 'shuffle_X_rows',
-                    random_state: int = 0,
-                    )-> pd.DataFrame:
-
-        print(f' !!!!! Permuting X using: {method} !!!!!')
-        # Shuffle the rows of X (=shuffle the sentences and create a mismatch between the sentence embeddings and target)
-        if method == 'shuffle_X_rows':
-            X = X.sample(frac=1, random_state=random_state)
-
-        # Shuffle the columns of X (=shuffle the neuroids and destroy the sentence embeddings in the same way for each sentence)
-        elif method == 'shuffle_X_cols':
-            X_ndarray = X.values
-            np.random.seed(random_state)
-            # Permute columns of X
-            X_ndarray = X_ndarray[:, np.random.permutation(X_ndarray.shape[1])]
-            X = pd.DataFrame(X_ndarray, columns=X.columns, index=X.index)
-
-        elif method == 'shuffle_each_X_col':
-            np.random.seed(random_state)
-            for col in X.columns:
-                X[col] = np.random.permutation(X[col])
-
-        else:
-            raise ValueError(f'Invalid method: {method}')
-
-        return X
     
     def CV_score(self,
                 random_state: int = 123,
-                k: int = 5,
-                permute_X: typing.Union[str, None] = None,
-                
+                k: int = 5
                 ):
         
         # Classifier
@@ -127,12 +96,6 @@ class Mapping:
         # If ann_layer is a string (i.e., an ROI), then we need to make sure we do not end up with a Series object:
         X = self.X
         y = self.y
-        # Checks: perturbing the regressors (X)
-        if permute_X is not None:
-            X = self.permute_X(X=X,
-                            method=permute_X,
-                            random_state=random_state)
-
         # Train/test indices
         kf = KFold(n_splits=k, shuffle=True, random_state=random_state)
 
@@ -190,9 +153,6 @@ class Mapping:
             scores_tr_across_folds.append(tr_acc)
             scores_te_across_folds.append(val_acc)
 
-            if permute_X is None:  # only assert if we do not permute the X
-                assert (y_train.index == X_train.index).all()
-                assert (y_test.index == X_test.index).all()
   
             df_fold_tr_log = pd.DataFrame({'CV_fold_idx': fold_idx,
                                         'CV_fold_acc': [tr_acc],
@@ -240,7 +200,7 @@ def set_seed(seed=123):
 set_seed(123)
 if __name__ == "__main__":
     # Loading data
-    data_folder = '/Users/simon/Desktop/Melb/Final-match-Melb/MRI-results/'
+    data_folder = 'xxx'
     ims, y = load_data(data_folder)
     X = Float_MRI(ims)
     X = pd.DataFrame(X)
@@ -258,8 +218,7 @@ if __name__ == "__main__":
                     preprocess_y=False,)
     
     df_tr_scores, df_tr_scores_across_folds,df_te_scores, df_te_scores_across_folds = mapping.CV_score(k = 5,
-                                                        random_state=1234,
-                                                        permute_X=None, # 'shuffle_X_rows',
+                                                        random_state=1234
                                                         )
     
 
