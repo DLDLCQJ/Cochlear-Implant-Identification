@@ -7,6 +7,7 @@ This study aims to construct neural predictive models to forecast post-cochlear 
 # Machine Learning and Deep Learning Models
 ## 1.Transfer Learning Models
 The standard transfer learning strategy involves using pre-trained CNN models on ImageNet as the backbone of the model, followed by fine-tuning the top layers. 
+
 Such as: AlexNet, VGG19, ResNet, Inception, GoogleNet, MobileNet, and DenseNet.
 
 ## 2. Machine Learning Models
