@@ -41,10 +41,7 @@ Examples include:
 - timm (1.0.3 or greater)
 - transformers (4.41.2 or greater)
 
-You can install the required dependencies using pip:
 
-```sh
-pip install -r requirements.txt
 
 
 ## Models Comparisons
