@@ -41,6 +41,10 @@ Examples include:
 - timm (1.0.3 or greater)
 - transformers (4.41.2 or greater)
 
+You can install the required dependencies using pip:
+
+```sh
+pip install -r requirements.txt
 
 
 
@@ -48,6 +52,8 @@ Examples include:
 ![Figure2](https://github.com/DLDLCQJ/Cochlear-Implant-Identification/assets/145650040/1405a323-0ba7-4155-9e1a-635adff244ec)
 Figure: Classification performance for machine learning models and transfer learning models (A) and the generalization of the model within datasets and across datasets (B).
 
+</details>
+<details>
 <summary>▼ Table 2. The classification performance of the Transfer Learning models and Machine Learning models in the Chicago English group.</summary>
 
 | Types       | Models          | Accuracy (95% CI)         | Sensitivity (95% CI)      | Specificity (95% CI)      | AUC (95% CI)            |
@@ -87,4 +93,3 @@ Figure: Classification performance for machine learning models and transfer lear
 | Chicago+Melbourne+HK               | 87.94 (87.28-88.59)     | 88.33 (87.18-89.48)      | 87.56 (86.12-89.00)      | 0.879 (0.873-0.886)     |
 
 Abbreviations: LR, Logistic Regression; KNN, K-Nearest Neighbor; SVM, Support Vector Machine; DT, Decision Tree; RF, Random Forest; XGBoost, eXtreme Gradient Boosting.
-
