@@ -46,6 +46,8 @@ You can install the required dependencies using pip:
 ```sh
 pip install -r requirements.txt
 
+</details>
+<details>
 
 ## Models Comparisons
 ![Figure2](https://github.com/DLDLCQJ/Cochlear-Implant-Identification/assets/145650040/1405a323-0ba7-4155-9e1a-635adff244ec)
