@@ -125,12 +125,10 @@ def main(args,X,y):
             num_training_steps=num_training_steps
         )
         ## Training
-        results_tr, results_val = train_epoch(args,model, train_dataloader, val_dataloader, criterion, optimizer, lr_scheduler, fold)
+        results_val = train_epoch(args,model, train_dataloader, val_dataloader, criterion, optimizer, lr_scheduler, fold)
         ## Testing
         results_te = test_epoch(args,model, test_dataloader, criterion, fold)
         # Save the scores of model
-        with open(opj(args.save_dir, f"model_fold{fold+1}_cv_predicts_and_labels_tr_{args.network}_{args.img_file}.pkl"), "wb") as f:
-            pickle.dump(results_tr, f)
         with open(opj(args.save_dir, f"model_fold{fold+1}_cv_predicts_and_labels_val_{args.network}_{args.img_file}.pkl"), "wb") as f:
             pickle.dump(results_val, f)
         with open(opj(args.save_dir, f"model_fold{fold+1}_cv_predicts_and_labels_te_{args.network}_{args.img_file}.pkl"), "wb") as f:
