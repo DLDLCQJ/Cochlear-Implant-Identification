@@ -51,7 +51,7 @@ def parse_arguments():
     parser.add_argument('--kernel', type=int, default=16, metavar='N',
                         help='the kernel size (default: 16')
     parser.add_argument('--network', type=str, default='Mobilenet', metavar='str',
-                        help='the network name (default: [DeiT, Googlenet, Alexnet, Mobilenet,VGG, Resnet, Densenet, Inception])')
+                        help='the network name (default: [Googlenet, Alexnet, Mobilenet,VGG, Resnet, Densenet, Inception])')
     parser.add_argument('--pretrained', type=str, default=True, metavar='str',
                         help='Loading pretrained model (default: False)')
     parser.add_argument('--optim', type=str, default='ADAM', metavar='str',
