@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.base import BaseEstimator, TransformerMixin
+import typing
+from textwrap import wrap
 
 class ScalerPCA(BaseEstimator, TransformerMixin):
     def __init__(self, variance_threshold=0.95):
@@ -12,13 +14,10 @@ class ScalerPCA(BaseEstimator, TransformerMixin):
         self.pca = PCA()
 
     def fit(self, X, y=None):
-        # Fit the scaler
         X_scaled = self.scaler.fit_transform(X)
-        # Fit PCA to determine the number of components to retain the desired variance
         self.pca.fit(X_scaled)
         cumulative_variance = np.cumsum(self.pca.explained_variance_ratio_)
         self.n_components_ = np.argmax(cumulative_variance >= self.variance_threshold) + 1
-        # Fit PCA again with the selected number of components
         self.pca = PCA(n_components=self.n_components_)
         self.pca.fit(X_scaled)
         return self
@@ -37,11 +36,9 @@ class Preprocessor:
             'demean': StandardScaler(with_std=False),
             'demean_std': StandardScaler(with_std=True),
             'minmax': MinMaxScaler,
-            # Create pipeline for pca
             'pca_auto': ScalerPCA(variance_threshold=0.95),
-            'pca10': Pipeline([('scaler', StandardScaler(with_std=False)), ('pca', PCA(n_components=10))]),
             'pca100': Pipeline([('scaler', StandardScaler(with_std=False)), ('pca', PCA(n_components=100))]),
-            
+            'pca10': Pipeline([('scaler', StandardScaler(with_std=False)), ('pca', PCA(n_components=10))]),
             None: None
         }
 
@@ -52,13 +49,8 @@ class Preprocessor:
         self.preprocess_name = preprocess
 
     def fit(self, A_raw: typing.Union[pd.DataFrame, np.ndarray] = None):
-        """Fit based on the input data (A_raw), return scaler. Do not transform.
-        
-        If the scaler does not exist, return None
-        """
         if self.unfitted_scaler is not None:
-            print(f'\nFitting scaler {self.unfitted_scaler}')
-            fitted_scaler = self.unfitted_scaler.fit(A_raw)  # demeans column-wise (i.e. per neuroid)
+            fitted_scaler = self.unfitted_scaler.fit(A_raw) 
         else:
             fitted_scaler = None
 
@@ -66,26 +58,17 @@ class Preprocessor:
 
     def transform(self, scaler: typing.Union[StandardScaler, MinMaxScaler] = None,
                     A_raw: typing.Union[pd.DataFrame, np.ndarray] = None):
-        """Input an array/dataframe (A_raw) and scale based on the transform fitted supplied in scaler.
-        If a dateframe is input, then add indexing back after scaling
-        
-        If scaler is None, then return A_raw.
-        
-        """
-
         if scaler is not None:
-            print(f'\nTransforming on new data using scaler {scaler}')
             A_scaled = scaler.transform(A_raw)
 
             if type(A_raw) == pd.DataFrame:
                 if self.preprocess_name.startswith(
-                        'pca'):  # If PCA, we can't add back the column names because there are now fewer columns
+                        'pca'):  
                     A_scaled = pd.DataFrame(data=A_scaled, index=A_raw.index)
                 else:
                     A_scaled = pd.DataFrame(A_scaled, index=A_raw.index, columns=A_raw.columns)
 
         else:
-            print(f'Scaler is None, return A_raw')
             A_scaled = A_raw
 
         return A_scaled
