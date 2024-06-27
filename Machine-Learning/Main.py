@@ -43,6 +43,7 @@ class Mapping:
         self.preprocessor = Preprocessor
         self.preprocess_X = preprocess_X
         self.preprocess_y = preprocess_y  
+        np.random.seed(random_state)
         ## clf 
         mapping_classes = {
             'LR': (LogisticRegression, {'penalty': ['l1', 'l2', 'elasticnet'],
@@ -69,8 +70,8 @@ class Mapping:
             'Xgboost':(XGBClassifier, {'min_child_weight': [1, 5, 10],'gamma': [0.5, 1, 1.5],
                                        #'subsample': [0.6, 0.8, 1.0],'colsample_bytree': [0.6, 0.8, 1.0],
                                        'max_depth': [3, 4, 5]}),
-
-            None: None}
+            None: None
+            }
         self.mapping_class_name = mapping_class
         self.mapping_class = mapping_classes[mapping_class]
         if not self.mapping_class:
@@ -85,7 +86,6 @@ class Mapping:
         clf = self.mapping_class[0]
         params = self.mapping_class[1]
         # Regressors (X) and targets (y)
-        # If ann_layer is a string (i.e., an ROI), then we need to make sure we do not end up with a Series object:
         X = self.X
         y = self.y
         # Train/test indices
@@ -93,13 +93,10 @@ class Mapping:
 
         train_indices = []
         test_indices = []
-        scores_tr_across_folds = []  # storing the score between y_test and y_pred in each fold
+        scores_tr_across_folds = []  
         scores_te_across_folds = [] 
-        alpha_tr_across_folds = []  # storing the alpha value identified in the test split in each fold
+        alpha_tr_across_folds = []  
         alpha_te_across_folds = []
-        # y_tests = []  # storing the y_test values in each fold (for asserting that they match up with y in the end)
-        # y_preds_cv = []  # storing the y_pred values in each fold (for storing them in a dict structure with keys "y"
-        # # and "y_pred-CV-k-{k}" for each fold)
 
         d_cv_te_log = defaultdict()
         d_cv_tr_log = defaultdict()
@@ -113,15 +110,15 @@ class Mapping:
 
             # Preprocessing
             if self.preprocess_X:
-                X_scaler = self.preprocessor.fit(X_train)  # Fit transform on train set to avoid data leakage
+                X_scaler = self.preprocessor.fit(X_train)  
                 X_train = self.preprocessor.transform(scaler=X_scaler, A_raw=X_train)
                 X_test = self.preprocessor.transform(scaler=X_scaler,
-                                                        A_raw=X_test)  # use transform from training set on the test set
+                                                        A_raw=X_test)  
                 print(f"X_train.shape: {X_train.shape}", f"y_train.shape: {y_train.shape}")
             if self.preprocess_y:
-                y_scaler = self.preprocessor.fit(y_train)  # Fit transform on train set to avoid data leakage
+                y_scaler = self.preprocessor.fit(y_train)  
                 y_train = self.preprocessor.transform(scaler=y_scaler, A_raw=y_train)
-                y_test = self.preprocessor.transform(scaler=y_scaler, A_raw=y_test)  # use transform from training set on the test set
+                y_test = self.preprocessor.transform(scaler=y_scaler, A_raw=y_test)  
             ##
             grid_search = GridSearchCV(clf(),params, cv=5, scoring='accuracy',verbose=5,return_train_score=True)
             grid_search.fit(X_train, y_train)
@@ -133,8 +130,6 @@ class Mapping:
             #clf.fit(X_train, y_train)
             y_predictions_tr = best_clf.predict(X_train)
             y_predictions_te = best_clf.predict(X_test)
-            # save best model
-            # ...
             # evaluate validation performance
             print(f"Accuracy for the fold no. {fold_idx} on the test set: {accuracy_score(y_test, y_predictions_te)}")
             print("***Performance on Validation data***")
@@ -189,7 +184,7 @@ def set_seed(seed=123):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
         
-set_seed(123)
+
 if __name__ == "__main__":
     # Loading data
     data_folder = 'xxx'
