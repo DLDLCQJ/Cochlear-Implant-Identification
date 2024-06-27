@@ -2,36 +2,28 @@
 '''
 classification tasks
 '''
-import sys
-import sklearn
+import os
 import numpy as np
 import pandas as pd
-import os
 from os.path import join as opj
 import typing
-import warnings
-from textwrap import wrap
+import sklearn
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.model_selection import KFold, StratifiedKFold, train_test_split, cross_validate, cross_val_score,GridSearchCV
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Ridge, LogisticRegression, RidgeCV
-from sklearn.model_selection import KFold, StratifiedKFold, train_test_split, cross_validate, cross_val_score,GridSearchCV
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.metrics import accuracy_score, f1_score, precision_score, confusion_matrix
-import torch
-from collections import defaultdict
-from scipy.stats import spearmanr, pearsonr, kendalltau
-import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import roc_curve, auc
-from sklearn.base import BaseEstimator, TransformerMixin
+import torch
+from collections import defaultdict
+import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score
 
 from Transfer-Learning.utils.evaluating_scores import compute_scores
-from loading_data import load_data, Flatten_MRI
+from data_loading import load_data, Flatten_MRI
 
 
 class Mapping:
