@@ -3,6 +3,8 @@ import torch.nn as nn
 import timm
 import torchvision.models as tvmodels
 
+from models.adapter_layer import linear_block
+
 class Loading_pretrained(nn.Module):
     """
      ImageNet, at a resolution of 128x128 or 224x224 pixels
