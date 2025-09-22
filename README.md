@@ -48,7 +48,7 @@ pip install -r requirements.txt
 ```
 
 ## Models Comparisons
-![Figure2](https://github.com/DLDLCQJ/Cochlear-Implant-Identification/assets/145650040/1405a323-0ba7-4155-9e1a-635adff244ec)
+<img width="1003" height="643" alt="Screenshot 2025-09-22 at 4 28 09 PM" src="https://github.com/user-attachments/assets/3b932894-c6ed-4a6d-8417-276b76358aca" />
 Figure: Classification performance for machine learning models and transfer learning models (A) and the generalization of the model within datasets and across datasets (B).
 
 
