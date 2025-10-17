@@ -9,7 +9,7 @@ import torch.nn as nn
 from dataset.data_preprocessing import pad_todesire_2D, crop_center_2D
 
 
-def loading_data(nifti_list):
+def loading_data(args, nifti_list,y):
     imgs = []
     for nii_file in nifti_list.to_numpy():
         filename = os.path.split(nii_file[0])[1]
@@ -44,8 +44,6 @@ def loading_data(nifti_list):
     imgs = np.squeeze(np.array(imgs))
     imgs = imgs[:, np.newaxis, :, :]
     processed_img = np.repeat(imgs,3,axis=1)
-    ##
-    y = pd.read_csv(opj(args.path, args.label_file + '.csv')).iloc[:,1].values
     y = np.repeat(y, 15)
 
     return processed_img, y
