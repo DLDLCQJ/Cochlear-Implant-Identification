@@ -74,11 +74,15 @@ def parse_arguments():
     parser.add_argument('--device', default='cuda', choices=['cpu', 'cuda'])
     return parser.parse_args()  # Running from command line
 
-def main(args,X,y):
+def main(args):
     set_seed(123)
     index_train, index_test = train_test_split(list(range(X.shape[0])), train_size=0.8, test_size=0.2, shuffle=True)
-    X_train, y_train = X[index_train],y[index_train]
-    X_test,y_test = X[index_test],y[index_test]
+    nifti_list = pd.read_csv(opj(args.path,args.img_file + '.csv'))
+    y = pd.read_csv(opj(args.path, args.label_file + '.csv')).iloc[:,1].values
+    X_train_list, y_train_list = nifti_list[index_train],y[index_train]
+    X_test_list,y_test_list = nifti_list[index_test],y[index_test]
+    X_train, y_train = loading_data(X_train_list,y_train_list)
+    X_test,y_test = loading_data(X_test_list,y_test_list)
     ##
     skf = StratifiedKFold(n_splits=args.k, shuffle=True, random_state=42)
     args.device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
@@ -136,5 +140,4 @@ def main(args,X,y):
 
 if __name__ == "__main__":
     args = parse_arguments()  # You could provide default args here
-    X_img, y = loading_data(args)
-    main(args, X_img, y)
+    main(args)
