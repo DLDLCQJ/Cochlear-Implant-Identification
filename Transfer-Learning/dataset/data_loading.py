@@ -9,8 +9,7 @@ import torch.nn as nn
 from dataset.data_preprocessing import pad_todesire_2D, crop_center_2D
 
 
-def loading_data(args):
-    nifti_list = pd.read_csv(opj(args.path,args.img_file + '.csv'))
+def loading_data(nifti_list):
     imgs = []
     for nii_file in nifti_list.to_numpy():
         filename = os.path.split(nii_file[0])[1]
