@@ -1,5 +1,5 @@
 # Cochlear-Implant-Identification
-Neural Prediction of Spoken Language Improvements in Children with Cochlear Implants
+Forecasting Spoken Language Development in Children with Cochlear Implants Using Preimplantation MRI
 
 ## Objective 
 This study aims to compare the accuracy of traditional machine learning (ML) to deep transfer learning (DTL) algorithms to predict post-CI spoken language development of children with bilateral SNHL using a binary classification model of high versus low language improvers.
