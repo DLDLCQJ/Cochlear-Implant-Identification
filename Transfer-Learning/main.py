@@ -82,7 +82,7 @@ def main(args):
     X_trval_list, y_trval_list = nifti_list[index_trval],y[index_trval]
     X_te_list,y_te_list = nifti_list[index_te],y[index_te]
     
-    X_te,y_te = loading_data(X_te_list,y_te_list)
+    X_te,y_te = loading_data(args,X_te_list,y_te_list)
     ##
     skf = StratifiedKFold(n_splits=args.k, shuffle=True, random_state=42)
     args.device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
@@ -93,8 +93,8 @@ def main(args):
     for fold, (tr_index, val_index) in enumerate(skf.split(X_train_list, y_train_list)):
         X_tr_list, X_val_list = X_trval_list[tr_index], X_trval_list[val_index]
         y_tr_list, y_val_list = y_trval_list[tr_index], y_trval_list[val_index]
-        X_tr, y_tr = loading_data(X_tr_list,y_tr_list)
-        X_val, y_val = loading_data(X_val_list,y_val_list)
+        X_tr, y_tr = loading_data(args,X_tr_list,y_tr_list)
+        X_val, y_val = loading_data(args,X_val_list,y_val_list)
         print(f"X_tr.shape: {X_tr.shape}", f"y_tr.shape: {y_tr.shape}")
         tr_dataset = MyDataset(args.norm_type,X_tr, y_tr)
         val_dataset = MyDataset(args.norm_type,X_val, y_val)
