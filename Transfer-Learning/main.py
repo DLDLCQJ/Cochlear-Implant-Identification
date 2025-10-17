@@ -76,27 +76,29 @@ def parse_arguments():
 
 def main(args):
     set_seed(123)
-    index_train, index_test = train_test_split(list(range(X.shape[0])), train_size=0.8, test_size=0.2, shuffle=True)
+    index_trval, index_te = train_test_split(list(range(X.shape[0])), train_size=0.8, test_size=0.2, shuffle=True)
     nifti_list = pd.read_csv(opj(args.path,args.img_file + '.csv'))
     y = pd.read_csv(opj(args.path, args.label_file + '.csv')).iloc[:,1].values
-    X_train_list, y_train_list = nifti_list[index_train],y[index_train]
-    X_test_list,y_test_list = nifti_list[index_test],y[index_test]
-    X_train, y_train = loading_data(X_train_list,y_train_list)
-    X_test,y_test = loading_data(X_test_list,y_test_list)
+    X_trval_list, y_trval_list = nifti_list[index_trval],y[index_trval]
+    X_te_list,y_te_list = nifti_list[index_te],y[index_te]
+    
+    X_te,y_te = loading_data(X_te_list,y_te_list)
     ##
     skf = StratifiedKFold(n_splits=args.k, shuffle=True, random_state=42)
     args.device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
     os.makedirs(args.save_dir, exist_ok=True)
-    test_dataset = MyDataset(args.norm_type, X_test, y_test)
-    test_dataloader = DataLoader(test_dataset, args.batch_size, shuffle=False)
+    te_dataset = MyDataset(args.norm_type, X_te, y_te)
+    te_dataloader = DataLoader(te_dataset, args.batch_size, shuffle=False)
     # Cross Validation
-    for fold, (train_index, val_index) in enumerate(skf.split(X_train, y_train)):
-        X_train, X_val = X[train_index], X[val_index]
-        y_train, y_val = y[train_index], y[val_index]
-        print(f"X_train.shape: {X_train.shape}", f"y_train.shape: {y_train.shape}")
-        train_dataset = MyDataset(args.norm_type,X_train, y_train)
+    for fold, (tr_index, val_index) in enumerate(skf.split(X_train_list, y_train_list)):
+        X_tr_list, X_val_list = X_trval_list[tr_index], X_trval_list[val_index]
+        y_tr_list, y_val_list = y_trval_list[tr_index], y_trval_list[val_index]
+        X_tr, y_tr = loading_data(X_tr_list,y_tr_list)
+        X_val, y_val = loading_data(X_val_list,y_val_list)
+        print(f"X_tr.shape: {X_tr.shape}", f"y_tr.shape: {y_tr.shape}")
+        tr_dataset = MyDataset(args.norm_type,X_tr, y_tr)
         val_dataset = MyDataset(args.norm_type,X_val, y_val)
-        train_dataloader = DataLoader(train_dataset, args.batch_size, shuffle=True)  #45 - recommended value for batchsize
+        tr_dataloader = DataLoader(tr_dataset, args.batch_size, shuffle=True)  #45 - recommended value for batchsize
         val_dataloader = DataLoader(val_dataset, args.batch_size, shuffle=False)
 
         # Initialized the model to be trained
@@ -119,7 +121,7 @@ def main(args):
         else:
             optimizer = optim.RMSprop(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
         # Calculate the number of total steps
-        num_training_steps = len(train_dataloader) * args.num_epochs
+        num_training_steps = len(tr_dataloader) * args.num_epochs
         num_warmup_steps = int(num_training_steps * args.lr_scheduler_warmup_ratio)
         # Define the scheduler
         lr_scheduler = get_scheduler(
@@ -129,9 +131,9 @@ def main(args):
             num_training_steps=num_training_steps
         )
         ## Training
-        results_val = train_epoch(args,model, train_dataloader, val_dataloader, criterion, optimizer, lr_scheduler, fold)
+        results_val = train_epoch(args,model, tr_dataloader, val_dataloader, criterion, optimizer, lr_scheduler, fold)
         ## Testing
-        results_te = test_epoch(args,model, test_dataloader, criterion, fold)
+        results_te = test_epoch(args,model, te_dataloader, criterion, fold)
         # Save the scores of model
         with open(opj(args.save_dir, f"model_fold{fold+1}_cv_predicts_and_labels_val_{args.network}_{args.img_file}.pkl"), "wb") as f:
             pickle.dump(results_val, f)
